@@ -156,8 +156,17 @@ module Rack
       host_parts = URI.split(host)
       new_host = host_parts[2] || host_parts[5]
       uri_parts = URI.split(encoded_uri)
-      uri_parts[2] = new_host
-      URI::HTTPS.new(*uri_parts).to_s
+      #Unescape the uri_parts after split
+      unescaped_uri_parts = Array.new
+      uri_parts.each do |part|
+        if part.nil?
+          unescaped_uri_parts.push(part)
+        else
+          unescaped_uri_parts.push(URI.unescape(part))
+        end
+      end
+      unescaped_uri_parts[2] = new_host
+      URI::HTTPS.new(*unescaped_uri_parts).to_s
     end
 
     def adjust_port_to(scheme)
